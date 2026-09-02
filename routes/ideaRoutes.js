@@ -82,7 +82,8 @@ router.post('/', protect, async (req, res, next) => {
                     .filter(Boolean)
                 : Array.isArray(tags)
                     ? tags
-                    : []
+                    : [],
+            user: req.user.id,
         });
 
         const savedIdea = await newIdea.save();
@@ -108,12 +109,20 @@ router.delete('/:id', protect, async (req, res, next) => {
             throw new Error('Idea not found');
         }
 
-        const idea = await Idea.findByIdAndDelete(id);
-
+        const idea = await Idea.findById(id);
         if (!idea) {
             res.status(404);
             throw new Error('Idea not found');
         }
+
+        // check if user owns the idea
+        if (idea.user.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('User not authorized to delete this idea.');
+        }
+
+        await idea.deleteOne();
+
         res.json({
             message: "Idea deleted.",
         });
