@@ -62,7 +62,7 @@ router.get('/:id', async (req, res, next) => {
  * @description Create new idea
  * @access      Public
  */
-router.post('/', protect,async (req, res, next) => {
+router.post('/', protect, async (req, res, next) => {
     try {
         const { title, summary, description, tags } = req.body || {};
 
