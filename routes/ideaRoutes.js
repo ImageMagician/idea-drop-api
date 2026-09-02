@@ -63,7 +63,7 @@ router.get('/:id', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
     try {
-        const { title, summary, description, tags } = req.body;
+        const { title, summary, description, tags } = req.body || {};
 
         if (!title?.trim() || !summary?.trim() || !description?.trim()) {
             res.status(400);
@@ -136,9 +136,7 @@ router.put('/:id', async (req, res, next) => {
             throw new Error('Idea not found');
         }
 
-        const {
-            title, summary, description, tags
-        } = req.body;
+        const { title, summary, description, tags } = req.body || {};
 
         // Check for content on title, summary, description
         if (!title?.trim() || !summary?.trim() || !description?.trim()) {
