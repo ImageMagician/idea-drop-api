@@ -9,7 +9,7 @@ export const protect = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401);
+            res.status(401);
             throw new Error('Not authorized (No token provided)');
         }
 
@@ -29,6 +29,6 @@ export const protect = async (req, res, next) => {
     catch (err) {
         res.status(401);
         console.error(err);
-        next(new Error('Not authorized (No token provided)'));
+        next(err);
     }
 }
