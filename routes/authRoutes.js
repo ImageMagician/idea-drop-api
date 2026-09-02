@@ -1,7 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
 import { generateToken } from "../utils/generateToken.js";
-import * as jwt from "node/crypto.d.ts";
 
 const router = express.Router();
 
@@ -59,6 +58,24 @@ router.post('/register', async (req, res, next) => {
         console.error(err);
         next(err);
     }
+})
+
+
+/**
+ * @route       POST api/auth/register
+ * @description Logout user and clear refresh token
+ * @access      Private
+ */
+router.post('/logout', async (req, res, next) => {
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+    });
+
+    res.status(200).json({
+        message: "Logged out successfully.",
+    });
 })
 
 export default router;
