@@ -1,4 +1,6 @@
 import express from 'express';
+import Idea from '../models/Idea.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -7,14 +9,43 @@ const router = express.Router();
  * @description Get all ideas
  * @access      Public
  */
-router.get('/', (req, res) => {
-    const ideas = [
-        { id: 1, title: 'Idea1', description: 'this is idea 1' },
-        { id: 2, title: 'Idea4', description: 'this is idea 2' },
-        { id: 3, title: 'Idea4', description: 'this is idea 3' },
-    ];
+router.get('/', async (req, res, next) => {
+    try {
+        const ideas = await Idea.find();
+        res.json(ideas);
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
 
-    res.json(ideas);
+/**
+ * @route       GET /api/ideas/:id
+ * @description Get single ideas
+ * @access      Public
+ */
+router.get('/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(404);
+            throw new Error('Idea not found');
+        }
+
+        const idea = await Idea.findById(id);
+
+        if (!idea) {
+            res.status(404);
+            throw new Error('Idea not found');
+        }
+        res.json(idea);
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
 })
 
 /**
@@ -22,9 +53,65 @@ router.get('/', (req, res) => {
  * @description Create new idea
  * @access      Public
  */
-router.post('/', (req, res) => {
-    const formData = req.body;
-    res.send(formData);
+router.post('/', async (req, res, next) => {
+    try {
+        const { title, summary, description, tags } = req.body;
+
+        if (!title?.trim() || !summary?.trim() || !description?.trim()) {
+            res.status(400);
+            throw new Error('Title, summary, and description are required.');
+        }
+
+        const newIdea = new Idea({
+            title,
+            summary,
+            description,
+            tags: typeof tags === 'string'
+                ? tags
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                : Array.isArray(tags)
+                    ? tags
+                    : []
+        });
+
+        const savedIdea = await newIdea.save();
+        res.status(201).json(savedIdea);
+    }
+    catch (err) {
+        console.error(err);
+        next(err);
+    }
 })
 
+/**
+ * @route       GET /api/ideas/:id
+ * @description DELETE idea
+ * @access      Public
+ */
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(404);
+            throw new Error('Idea not found');
+        }
+
+        const idea = await Idea.findByIdAndDelete(id);
+
+        if (!idea) {
+            res.status(404);
+            throw new Error('Idea not found');
+        }
+        res.json({
+            message: "Idea deleted.",
+        });
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
 export default router;
