@@ -22,12 +22,12 @@ app.use(express.json());
 
 // accept form data
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Map /api/ideas to ideaRoutes file
 app.use('/api/ideas', ideaRouter);
 app.use('/api/auth', authRouter);
 
-app.use(cookieParser());
 
 // 404 Fallback
 app.use((req, res, next) => {
