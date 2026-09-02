@@ -5,6 +5,7 @@ import ideaRouter from './routes/ideaRoutes.js';
 import authRouter from './routes/authRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import connectDB from './config/db.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 // Map /api/ideas to ideaRoutes file
 app.use('/api/ideas', ideaRouter);
 app.use('/api/auth', authRouter);
+
+app.use(cookieParser());
 
 // 404 Fallback
 app.use((req, res, next) => {
